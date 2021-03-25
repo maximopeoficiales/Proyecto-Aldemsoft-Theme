@@ -1,37 +1,62 @@
 <?php
-// Functions Adicionales creados por MaximoProg
-// añado mi css custom
-// registro css global para todo el tema
-wp_register_style("customAldem", aldem_get_css_url_helper("styles.css"), '', '1.0.0');
-// shortcode
+// funciones generales by maximoprog
 
-// Add Shortcode
-function aldem_pfrx_addshorcode()
+/**
+ * Carga un archivo php especifico de la carpeta views
+ * @param string $name Nombre del archivo
+ * @return void
+ */
+function aldem_cargar_view($name)
 {
-     add_shortcode('aldem_marken_shipper', function () {
-          ob_start();
-          // include file (contents will get saved in output buffer)
-          include(aldem_get_view_directory_helper() . "test.php");
-          // save and return the content that has been output
-          return  ob_get_clean();
-     });
+     require(aldem_get_view_directory_helper() . "$name.php");
 }
-add_action('init', 'aldem_pfrx_addshorcode');
-
-// obtiene direccion completa de una view/imagen/js/css
+/**
+ * Obtiene la ruta de la carpeta helpers
+ * @return string
+ */
+function aldem_get_directory_helper(): string
+{
+     return get_stylesheet_directory() . '/helpers/';
+}
+/**
+ * Obtiene la ruta de la carpeta helpers/views
+ * @return string
+ */
 function aldem_get_view_directory_helper(): string
 {
      return get_stylesheet_directory() . "/helpers/views/";
 }
+/**
+ * Obtiene la url de una imagen la carpeta helpers/imgs
+ * @param string $name Nombre de la imagen - especifica el formato
+ * @return string
+ */
 function aldem_get_image_url_helper($name): string
 {
      return get_template_directory_uri() . "/helpers/public/imgs/$name";
 }
+/**
+ * Obtiene la url de un archivo JS de la carpeta helpers/js
+ * @param string $name Nombre del script - especifica el formato
+ * @return string
+ */
 function aldem_get_js_url_helper($name): string
 {
      return get_template_directory_uri() . "/helpers/public/js/$name";
 }
+/**
+ * Obtiene la url de un archivo CSS de la carpeta helpers/css
+ * @param string $name Nombre del css - especifica el formato
+ * @return string
+ */
+
 function aldem_get_css_url_helper($name): string
 {
-     return get_template_directory_uri() . "/helpers/public/css/$name";
+     return get_template_directory_uri() . "/helpers/public/css/$name.css";
 }
+
+
+// llamo al archivo con todos los shortcodes
+require aldem_get_directory_helper() . "registers/index.php";
+require aldem_get_directory_helper() . "shortcodes/index.php";
+require aldem_get_directory_helper() . "querys/index.php";
