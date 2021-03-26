@@ -38,7 +38,7 @@ function query_getMarkenSite($idMarkenSite = null)
     return $result;
 }
 
-function query_getUbigeo($idUbigeo = null, $idPais = null)
+function query_getUbigeo($idPais = null, $idUbigeo = null)
 {
 
     $wpdb = query_getWPDB();
@@ -61,4 +61,24 @@ function query_getUsers()
     $result = $wpdb->get_results("SELECT * FROM wp_users");
     $wpdb->flush();
     return $result;
+}
+
+function query_getNameComplete($id_user = null)
+{
+    $id_user = $id_user ?? get_current_user_id();
+    $sql = "SELECT replace(GROUP_CONCAT(t2.meta_value),',',' ') AS name FROM wp_users t1
+    INNER JOIN wp_usermeta t2
+    ON t1.id = t2.user_id
+    WHERE t1.id = $id_user AND t2.meta_key IN ('last_name', 'first_name')
+    ORDER BY t2.meta_key DESC";
+
+    $wpdb = query_getWPDB();
+    $result = $wpdb->get_results($sql);
+    $wpdb->flush();
+    return $result[0];
+}
+
+function shipper_isUserCreator($id_user_created): bool
+{
+    return get_current_user_id() === intval($id_user_created) ? true : false;
 }

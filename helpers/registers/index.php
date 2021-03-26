@@ -24,6 +24,10 @@ function aldem_head_js()
         // ", '', '1.0.0', true);
         // FIN DE DATATABLES
 
+        // select 2
+            wp_enqueue_style("aldemSelect2CSS", "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css", '', '1.0.0');
+            wp_enqueue_script("aldemSelect2JS", "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js", '', '1.0.0');
+        // 
         // registro css global para todo el tema
         wp_enqueue_style("customAldem", aldem_get_css_url_helper("styles"), '', '1.0.0');
     }
