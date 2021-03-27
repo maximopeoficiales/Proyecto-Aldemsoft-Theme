@@ -3,11 +3,13 @@
 $shippers = (object) query_getShippers();
 $countrys = (object) query_getCountrys();
 $markenSites = (object) query_getMarkenSite();
-// $ubigeos=json_encode(query_getUbigeo());
-
-print_r(get_current_user_id());
-
+$urlUbigeos = get_site_url() . "/wp-json/aldem/v1/ubigeos";
 ?>
+<?php
+aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocurrio un error 😢 en el registro del shipper")
+?>
+
+
 
 <div class="row justify-content-center">
     <div class="col-md-10">
@@ -47,8 +49,102 @@ print_r(get_current_user_id());
                     <div class="modal" id="exampleModal<?= $key1 + 1  ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 100px;">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
+                                <form action="<?php echo admin_url('admin-post.php') ?>" method="post">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title" id="exampleModalLabel">Detalle del Shipper</h5>
+                                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="nombreShipper">Nombre: </label>
+                                            <input type="text" name="nombreShipper" id="nombreShipper" class="form-control" placeholder="Ingrese su nombre" aria-describedby="helpId" value="<?= $ship->nombre ?>" <?= $disabledGlobal ?>>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="direccionShipper">Direccion:</label>
+                                            <input type="text" name="direccionShipper" id="direccionShipper" class="form-control" placeholder="Ingrese su direccion" aria-describedby="helpId" value="<?= $ship->direccion ?>" <?= $disabledGlobal ?>>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="direccion2Shipper">Direccion2:</label>
+                                            <input type="text" name="direccion2Shipper" id="direccion2Shipper" class="form-control" placeholder="Ingrese su direccion2" aria-describedby="helpId" value="<?= $ship->direccion2 ?>" <?= $disabledGlobal ?>>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="zipShipper">Zip:</label>
+                                                    <input type="number" name="zipShipper" id="zipShipper" class="form-control" placeholder="Ingrese su zip" aria-describedby="helpId" min="0" value="<?= $ship->zip ?>" <?= $disabledGlobal ?>>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="paisShipper" style="display: block;">Pais:</label>
+                                                    <select class="form-control select-countrys-<?= $key1 + 1 ?>" name="paisShipper" id="paisShipper" style="width: 100% !important;" <?= $disabledGlobal ?>>
+                                                        <?php
+                                                        foreach ($countrys as $kq => $country) {
+                                                        ?>
+                                                            <option value="<?= $country->id_pais ?>" <?= $ship->id_country ===  $country->id_pais ? " selected" : "" ?>><?= $country->desc_pais ?>
+                                                            </option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="shiteShipper">Site:</label>
+                                                    <select class="form-control" name="shiteShipper" id="shiteShipper" <?= $disabledGlobal ?>>
+                                                        <?php foreach ($markenSites as $markenSite) { ?>
+
+                                                            <option value="<?= $markenSite->id_marken_site ?>" <?= $ship->site ===  $markenSite->descripcion ? " selected" : "" ?>>
+                                                                <?= $markenSite->descripcion ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group ">
+                                                    <label for="ubigeoShipper">Ubigeo:</label>
+                                                    <select class="form-control" name="ubigeoShipper" id="ubigeoShipper" <?= $disabledGlobal ?>>
+                                                        <option><?= query_getUbigeo(null, $ship->id_ubigeo)[0]->descripcion ?></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="mt-2">
+                                            <strong>Creador por: </strong> <?= query_getNameComplete($ship->id_usuario_created)->name ?>
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="action" value="process_form">
+                                        <input type="hidden" name="action_name" value="edit-shipper">
+                                        <input type="hidden" name="id_user" value="<?= get_current_user_id() ?>">
+                                        <button type="button" class="btn btn-danger text-capitalize" data-dismiss="modal">Salir</button>
+
+                                        <?php if (shipper_isUserCreator($ship->id_usuario_created)) { ?>
+                                            <button type="submit" class="btn btn-success text-capitalize">
+                                                <i class="fa fa-save mr-1"></i> Guardar</button>
+                                        <?php } ?>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+                <div class="text-center">
+                    <button class="btn" data-toggle="modal" data-target="#modal-newShipper" onclick="$('.new-select-countrys').select2();">Nuevo shipper</button>
+                </div>
+
+                <!-- new shipper -->
+                <div class="modal" id="modal-newShipper" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 100px;">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <form action="<?php echo admin_url('admin-post.php') ?>" method="post">
+
                                 <div class="modal-header bg-dark text-white">
-                                    <h5 class="modal-title" id="exampleModalLabel">Detalle del Shipper</h5>
+                                    <h5 class="modal-title" id="exampleModalLabel">Nuevo Shipper</h5>
                                     <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
@@ -56,31 +152,31 @@ print_r(get_current_user_id());
                                 <div class="modal-body">
                                     <div class="form-group">
                                         <label for="nombreShipper">Nombre: </label>
-                                        <input type="text" name="nombreShipper" id="nombreShipper" class="form-control" placeholder="Ingrese su nombre" aria-describedby="helpId" value="<?= $ship->nombre ?>" <?= $disabledGlobal ?>>
+                                        <input type="text" name="nombreShipper" id="nombreShipper" class="form-control" placeholder="Ingrese su nombre" aria-describedby="helpId">
                                     </div>
                                     <div class="form-group">
                                         <label for="direccionShipper">Direccion:</label>
-                                        <input type="text" name="direccionShipper" id="direccionShipper" class="form-control" placeholder="Ingrese su direccion" aria-describedby="helpId" value="<?= $ship->direccion ?>" <?= $disabledGlobal ?>>
+                                        <input type="text" name="direccionShipper" id="direccionShipper" class="form-control" placeholder="Ingrese su direccion" aria-describedby="helpId">
                                     </div>
                                     <div class="form-group">
                                         <label for="direccion2Shipper">Direccion2:</label>
-                                        <input type="text" name="direccion2Shipper" id="direccion2Shipper" class="form-control" placeholder="Ingrese su direccion2" aria-describedby="helpId" value="<?= $ship->direccion2 ?>" <?= $disabledGlobal ?>>
+                                        <input type="text" name="direccion2Shipper" id="direccion2Shipper" class="form-control" placeholder="Ingrese su direccion2" aria-describedby="helpId">
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="zipShipper">Zip:</label>
-                                                <input type="number" name="zipShipper" id="zipShipper" class="form-control" placeholder="Ingrese su zip" aria-describedby="helpId" min="0" value="<?= $ship->zip ?>" <?= $disabledGlobal ?>>
+                                                <input type="number" name="zipShipper" id="zipShipper" class="form-control" placeholder="Ingrese su zip" aria-describedby="helpId" min="0">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="paisShipper" style="display: block;">Pais:</label>
-                                                <select class="form-control select-countrys-<?= $key1 + 1 ?>" name="paisShipper" id="paisShipper" style="width: 100% !important;" <?= $disabledGlobal ?>>
+                                                <select class="form-control new-select-countrys" name="paisShipper" id="newshipper-paisShipper" style="width: 100% !important;">
                                                     <?php
                                                     foreach ($countrys as $kq => $country) {
                                                     ?>
-                                                        <option value="<?= $country->id_pais ?>" <?= $ship->id_country ===  $country->id_pais ? " selected" : "" ?>><?= $country->desc_pais ?>
+                                                        <option value="<?= $country->id_pais ?>"><?= $country->desc_pais ?>
                                                         </option>
                                                     <?php } ?>
                                                 </select>
@@ -92,10 +188,9 @@ print_r(get_current_user_id());
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="shiteShipper">Site:</label>
-                                                <select class="form-control" name="shiteShipper" id="shiteShipper" <?= $disabledGlobal ?>>
+                                                <select class="form-control" name="siteShipper" id="shiteShipper">
                                                     <?php foreach ($markenSites as $markenSite) { ?>
-
-                                                        <option value="<?= $markenSite->id_marken_site ?>" <?= $ship->site ===  $markenSite->descripcion ? " selected" : "" ?>>
+                                                        <option value="<?= $markenSite->id_marken_site ?>">
                                                             <?= $markenSite->descripcion ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -104,30 +199,25 @@ print_r(get_current_user_id());
                                         <div class="col-md-6">
                                             <div class="form-group ">
                                                 <label for="ubigeoShipper">Ubigeo:</label>
-                                                <select class="form-control" name="ubigeoShipper" id="ubigeoShipper" <?= $disabledGlobal ?>>
-                                                    <option><?= query_getUbigeo(null, $ship->id_ubigeo)[0]->descripcion ?></option>
+                                                <select class="form-control" name="ubigeoShipper" id="newshipper-ubigeoShipper">
+                                                    <option></option>
                                                 </select>
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="mt-2">
-                                        <strong>Creador por: </strong> <?= query_getNameComplete($ship->id_usuario_created)->name ?>
-                                    </p>
+
                                 </div>
                                 <div class="modal-footer">
+                                    <input type="hidden" name="action" value="process_form">
+                                    <input type="hidden" name="action_name" value="new-shipper">
+                                    <input type="hidden" name="id_user" value="<?= get_current_user_id() ?>">
                                     <button type="button" class="btn btn-danger text-capitalize" data-dismiss="modal">Salir</button>
-                                                        
-                                    <?php if (shipper_isUserCreator($ship->id_usuario_created)) { ?>
-                                        <button type="button" class="btn btn-success text-capitalize">
-                                            <i class="fa fa-save mr-1"></i> Guardar</button>
-                                    <?php } ?>
+                                    <button type="submit" class="btn btn-success text-capitalize">
+                                        <i class="fa fa-save mr-1"></i> Guardar</button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
-                <?php } ?>
-                <div class="text-center">
-                    <button class="btn">Nuevo shipper</button>
                 </div>
             </div>
         </div>
@@ -136,8 +226,50 @@ print_r(get_current_user_id());
 
 <script>
     (() => {
+        const getUbigeos = async (id_country = 0) => {
+            try {
+                let myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+                let raw = JSON.stringify({
+                    "id_country": id_country,
+                });
+
+                let requestOptions = {
+                    method: 'POST',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+                return await (await (fetch('<?= $urlUbigeos ?>', requestOptions))).json();
+            } catch (error) {
+                return null;
+            }
+        }
+        const setUbigeosAsync = async (id_country = 0, name_select = "") => {
+            let ubigeos = await getUbigeos(id_country);
+            let selectUbigeo = document.querySelector(name_select);
+            // si no tiene error
+            if (!ubigeos.data) {
+                // cargar los ubigeos en el select
+                selectUbigeo.innerHTML = "";
+                let htmlTemporal = "";
+                ubigeos.forEach(ubigeo => {
+                    htmlTemporal += `<option value="${ubigeo.id_ubigeo}">${ubigeo.descripcion}</option>`
+                });
+                selectUbigeo.innerHTML = htmlTemporal;
+                $('#newshipper-ubigeoShipper').select2();
+            } else {
+                selectUbigeo.innerHTML = `<option value="">No tiene Ubigeos Registrados</option>`;
+            }
+        }
         $(document).ready(function() {
             $('#table-shippers').DataTable();
+
+        });
+
+        $('#newshipper-paisShipper').on('select2:select', async function(e) {
+            let id_country = (e.params.data.id);
+            await setUbigeosAsync(id_country, "#newshipper-ubigeoShipper");
 
         });
     })()

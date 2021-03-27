@@ -56,7 +56,10 @@ function aldem_get_css_url_helper($name): string
 }
 
 
-// llamo al archivo con todos los shortcodes
+// llamo al archivo a todos los archivos necesarios para el funcionamiento del miniframework
+require aldem_get_directory_helper() . "querys/index.php";
+require aldem_get_directory_helper() . "routes/endpoints.php";
+require aldem_get_directory_helper() . "helpers/helpers.php";
+require aldem_get_directory_helper() . "controllers/controllers.php";
 require aldem_get_directory_helper() . "registers/index.php";
 require aldem_get_directory_helper() . "shortcodes/index.php";
-require aldem_get_directory_helper() . "querys/index.php";
