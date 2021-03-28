@@ -1,4 +1,7 @@
 <?php
+// necesario para cargar el autoload.php para todo lo que venga de vendor
+
+require aldem_get_directory_helper() . "vendor/autoload.php";
 // funciones generales by maximoprog
 
 /**
@@ -57,6 +60,7 @@ function aldem_get_css_url_helper($name): string
 
 
 // llamo al archivo a todos los archivos necesarios para el funcionamiento del miniframework
+require aldem_get_directory_helper() . "utilities/utilities.php";
 require aldem_get_directory_helper() . "querys/index.php";
 require aldem_get_directory_helper() . "routes/endpoints.php";
 require aldem_get_directory_helper() . "helpers/helpers.php";

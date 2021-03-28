@@ -6,7 +6,7 @@ $markenSites = (object) query_getMarkenSite();
 $urlUbigeos = get_site_url() . "/wp-json/aldem/v1/ubigeos";
 ?>
 <?php
-aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocurrio un error 😢 en el registro del shipper")
+aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Se ha actualizado correctamente el shipper 😀", "Ocurrio un error 😢 en el registro del shipper")
 ?>
 
 
@@ -95,11 +95,13 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="shiteShipper">Site:</label>
-                                                    <select class="form-control" name="shiteShipper" id="shiteShipper" <?= $disabledGlobal ?>>
+                                                    <select class="form-control" name="siteShipper" id="shiteShipper" <?= $disabledGlobal ?>>
                                                         <?php foreach ($markenSites as $markenSite) { ?>
 
-                                                            <option value="<?= $markenSite->id_marken_site ?>" <?= $ship->site ===  $markenSite->descripcion ? " selected" : "" ?>>
-                                                                <?= $markenSite->descripcion ?></option>
+                                                            <option value="<?= $markenSite->id_marken_site ?>" <?= $ship->site ===  $markenSite->descripcion ? "  selected" : "" ?>
+                                                            >
+                                                                <?= $markenSite->descripcion ?>
+                                                            </option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
@@ -107,8 +109,8 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
                                             <div class="col-md-6">
                                                 <div class="form-group ">
                                                     <label for="ubigeoShipper">Ubigeo:</label>
-                                                    <select class="form-control" name="ubigeoShipper" id="ubigeoShipper" <?= $disabledGlobal ?>>
-                                                        <option><?= query_getUbigeo(null, $ship->id_ubigeo)[0]->descripcion ?></option>
+                                                    <select class="form-control"" name=" ubigeoShipper" id="ubigeoShipper-<?= $key1 + 1 ?>" <?= $disabledGlobal ?>>
+                                                        <option selected value="<?= $ship->id_ubigeo ?>"><?= query_getUbigeo(null, $ship->id_ubigeo)[0]->descripcion ?></option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -119,14 +121,18 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
                                     </div>
                                     <div class="modal-footer">
                                         <input type="hidden" name="action" value="process_form">
-                                        <input type="hidden" name="action_name" value="edit-shipper">
+                                        <input type="hidden" name="id_shipper" value="<?= $ship->id_shipper ?>">
+                                        <?php
+                                        shipper_isUserCreator($ship->id_usuario_created) ? aldem_set_action_name("edit-shipper") : "";
+                                        ?>
                                         <input type="hidden" name="id_user" value="<?= get_current_user_id() ?>">
                                         <button type="button" class="btn btn-danger text-capitalize" data-dismiss="modal">Salir</button>
 
-                                        <?php if (shipper_isUserCreator($ship->id_usuario_created)) { ?>
-                                            <button type="submit" class="btn btn-success text-capitalize">
-                                                <i class="fa fa-save mr-1"></i> Guardar</button>
-                                        <?php } ?>
+                                        <?php if (shipper_isUserCreator($ship->id_usuario_created)) {
+                                            echo ' <button type="submit" class="btn btn-success text-capitalize">
+                                            <i class="fa fa-save mr-1"></i> Editar</button>';
+                                        }
+                                        ?>
                                     </div>
                                 </form>
                             </div>
@@ -209,7 +215,7 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
                                 </div>
                                 <div class="modal-footer">
                                     <input type="hidden" name="action" value="process_form">
-                                    <input type="hidden" name="action_name" value="new-shipper">
+                                    <?php aldem_set_action_name("new-shipper"); ?>
                                     <input type="hidden" name="id_user" value="<?= get_current_user_id() ?>">
                                     <button type="button" class="btn btn-danger text-capitalize" data-dismiss="modal">Salir</button>
                                     <button type="submit" class="btn btn-success text-capitalize">
@@ -257,7 +263,7 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
                     htmlTemporal += `<option value="${ubigeo.id_ubigeo}">${ubigeo.descripcion}</option>`
                 });
                 selectUbigeo.innerHTML = htmlTemporal;
-                $('#newshipper-ubigeoShipper').select2();
+                $(name_select).select2();
             } else {
                 selectUbigeo.innerHTML = `<option value="">No tiene Ubigeos Registrados</option>`;
             }
@@ -272,5 +278,17 @@ aldem_show_message_custom("Se ha registrado correctamente el shipper 😀", "Ocu
             await setUbigeosAsync(id_country, "#newshipper-ubigeoShipper");
 
         });
+
+        <?php
+        foreach ($shippers as $key4 => $value) {
+        ?>
+            $('.select-countrys-<?= $key4 + 1 ?>').on('select2:select', async function(e) {
+                let id_country = (e.params.data.id);
+                console.log(id_country);
+                await setUbigeosAsync(id_country, "#ubigeoShipper-<?= $key4 + 1 ?>");
+
+            });
+        <?php } ?>
+
     })()
 </script>
